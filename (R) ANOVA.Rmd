@@ -1,0 +1,158 @@
+---
+title: "ANOVA"
+author: "Randhy Pratama, Sebastian Adrian Halim, Celline Vercelli, Riwie Siregar"
+date: "1/10/2021"
+output: pdf_document
+---
+#Menyiapkan Data
+
+Pertama-tama kita baca dulu datanya ke dalam data frame
+```{r}
+data1=read.csv("13.6_clean.csv",sep = ";")
+data1
+```
+
+Jika ingin menggunakan excel langsung, kita harus memakai sebuah package lain
+```{r}
+library(readxl)
+data_2=read_excel("13.6.xlsx")
+data_2
+```
+Jangan menggunakan na.omit ketika membaca data, karena akan menghilangkan satu baris sekaligus
+
+Sebelum melakukan anova, kita perlu menyusun ulang data menjadi dua kolom, yaitu level dan nilai
+#Cara 1
+```{r}
+stack(data1) #menyatukan semua data
+datab1=na.omit(stack(data1)) #menghilangkan data NA pada data yang telah di satukan
+colnames(datab1)=c('Nilai','Senyawa')
+datab1
+```
+
+#Cara2
+```{r, warning=FALSE}
+library(tidyverse)
+datab2 = data1 %>% gather(key=Senyawa, value=Nilai,1:3,na.rm=TRUE)
+datab2
+```
+
+
+#Melakukan ANOVA
+Membangun Tabel ANOVA
+```{r}
+model=aov(Nilai~Senyawa,datab1)
+summary(model)
+qf(0.95,2,29) #FTabel
+
+```
+
+Kita dapat membuat boxplot agar lebih mudah memahami datanya
+```{r}
+library(ggplot2)
+ggplot(datab1,aes(x=Senyawa,y=Nilai)) + 
+  geom_boxplot(fill="cadetblue3") + 
+  geom_point(color="red")
+```
+
+#Uji Diagnostik
+Bartlett Test
+```{r}
+bartlett.test(Nilai~Senyawa,datab1)
+```
+
+Cochran Test
+```{r}
+library(outliers)
+cochran.test(Nilai~Senyawa,datab1)
+```
+
+#Cek Residual
+Ini adalah data sampel, sementara yang kita cek adalah kesamaan variansi populasi
+```{r}
+library(ggplot2)
+ggplot(datab1,aes(x=Senyawa,y=resid(model))) + 
+  geom_boxplot(fill="cadetblue3") + 
+  geom_point(color="red")
+```
+
+QQ PLOT
+```{r}
+qqnorm(resid(model),ylab="Residuals")
+qqline(resid(model),col="red")
+```
+
+Uji Anderson Darling Untuk Kenormalan (lebih ketat dari Kologmorov Smirnov)
+```{r}
+library(nortest)
+ad.test(resid(model))
+```
+
+#Mencari Rataan Mana Yang Berbeda
+
+Tukey Test
+```{r}
+TukeyHSD(model,conf.level = 0.95)
+plot(TukeyHSD(model,conf.level = 0.95))
+```
+
+Duncan Test - library yang sama seperti Tukey
+```{r}
+library(PMCMRplus)
+plot(duncanTest(model,"Senyawa",alpha=0.05,console=TRUE))
+```
+
+Dunnett Test
+```{r}
+library(DescTools)
+DunnettTest(datab1$Nilai,datab1$Senyawa,conf.level = 0.95)
+plot(DunnettTest(datab1$Nilai,
+                 datab1$Senyawa,conf.level = 0.95))
+```
+
+
+#TWO WAY ANOVA
+
+```{r}
+data3=read_excel("14.3.xlsx")
+data3
+```
+
+#Membangun Model
+```{r}
+model2=aov(Values~Environment+Strain+Environment*Strain,data3)
+summary(model2)
+```
+
+#Memastikan Ada Interaksi
+```{r}
+library(pracma)
+j=1
+summ=0
+AVG=0
+for (i in 1:nrow(data3)) {
+  summ=summ+data3$Values[i]
+  if (mod(i,8)==0){
+    AVG[j]=summ/8
+    summ=0
+    j=j+1
+  }
+}
+Inter=data.frame(AVG,
+                 Environment=rep(c("Free","Restricted"), each = 3),
+                 Strain=rep(c("Bright","Mixed","Dull"), length.out=6))
+Inter
+```
+
+```{r}
+library(haven)
+library(ggpubr)
+ggline(Inter, x = "Environment", y = "AVG",color="Strain",
+       add = c("dotplot"))
+```
+
+```{r}
+PlotResid=data.frame(Pred=predict(model2,newdata = data3),
+           Resid=resid(model2))
+ggplot(PlotResid,aes(x=Pred,y=Resid))+geom_point()
+```
+

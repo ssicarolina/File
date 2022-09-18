@@ -1,0 +1,234 @@
+---
+title: "Pengenalan_R"
+author: "Randhy Pratama, Sebastian Adrian Halim, Celline Vercelli, Riwie Siregar"
+date: "1/10/2020"
+output: pdf_document
+---
+
+
+#Fungsi-fungsi Primitif pada R
+
+## Assignment
+
+Dalam menyimpan suatu objek pada suatu variable, dapat digunakan simbol "<-" atau simbol "=". 
+Sebagai contoh:
+```{r}
+variable_A <- 2
+variable_A
+variable_A = 2
+variable_A
+```
+
+Disini kita menyimpan angka 2 kedalam variable_A.
+Untuk mengecek tipe data yang kita simpan, digunakan fungsi typeof.
+
+```{r}
+typeof(variable_A)
+```
+Tipe-tipe value yang dapat disimpan adalah :
+1. numeric, double (bilangan real)
+2. integer (bilangan bulat)
+3. logical (TRUE atau FALSE)
+4. chr (karakter atau string, biasa diperlakukann juga sebagai factor)
+5. factor (kategorikal seperti : warna , jenis kelamin, merek, dll)
+
+Kita dapat mengganti tipe value dengan fungsi as.integer,as.factor / factor,as.numeric,dll
+
+Sebagai contoh merubah tipe "double" menjadi tipe "character"
+
+```{r}
+as.character(variable_A)
+variable_A=as.character(variable_A)
+typeof(variable_A)
+```
+
+## Merubah factor angka menjadi numerik
+Jika ingin mengubah "factor" (atau level) yang berupa angka menjadi "numerik", maka kita perlu melakukan konversi faktor tersebut menjadi "string/character" terlebih dahulu, lalu kemudian dijadikan numerik.
+
+```{r}
+a = factor(c("10","2","3","43"))
+a
+as.numeric(a) #belum dikonversi karakter
+as.numeric(as.character(a)) #setelah dikonversi karakter
+```
+
+
+##Operasi Aritmatika
+
+Operasi aritmatika yang didefinisikan pada double :
+```{r}
+variable_A+1 #Jumlah
+variable_A*1 #Kali
+variable_A/1 #Bagi
+variable_A-1 #Kurang
+variable_A^2 #Pangkat
+```
+
+##Operasi Komparasi
+
+Operasi komparasi yang didefinisikan pada double :
+```{r}
+variable_A == 2 #Sama dengan
+variable_A != 2 #Tidak sama dengan
+variable_A >= 3 #geq (Greater than or Equal to)
+variable_A <= 2 #leq (Lower than or Equal )
+```
+
+#Conditional Expression
+
+## If Else
+
+Fungsi if dalam R :
+```{r}
+if (10 -1 < 10){
+  print("Yey sudah lulus kalkulus")
+}else{
+  print("Belum lulus Kalkulus")
+}
+```
+
+## For Loop
+
+Iterasi di R dilakukan dengan 2 cara, yakni for dan while
+```{r}
+for (x in 1:10){
+  print("AkuSukaAnvaregdanModlin")
+}
+```
+
+Selain iterasi dalam sebuah selang integer, kita juga dapat melakukan iterasi terhadap komponen vektor
+```{r}
+variable_B = c(2,3,5,7,9,11,13,17,19,23,29)
+for (m in variable_B){
+  print(m)
+}
+```
+
+```{r}
+x=0
+for (x in (1:9)){
+  x=x+1
+}
+x
+
+```
+
+## While Loop
+
+```{r}
+x <- 0
+while (x < 10){
+  x <- x + 1
+}
+print(x)
+rm(x) #Remove variabel x
+```
+
+Kita dapat membuat vektor integer terurut dengan cara :
+```{r}
+-10:10
+```
+Atau dengan menggunakan fungsi sequence-(awal,akhir,step)
+Kelebihannya adalah kita dapat mengatur besar increment(decrement)nya
+```{r}
+seq(-10,10,1)
+seq(-10,10,2)
+seq(-10,10,5)
+```
+
+
+#Mengkonstruksi Data Frame
+```{r}
+df_a = data.frame(X1 = c(18,12,33,17,16,20),X2=c("M","F","M","M","M","F"),X3 = c(1,1,0,0,1,0))
+print(df_a)
+```
+
+Untuk mengambil satu kolom dalam data frame, dapat dilakukan
+```{r}
+df_a$X2
+df_a$X3
+```
+
+Tentu kita bisa mengubah tipe variabel data frame tersebut sesuai dengan yang kita mau dengan menggunakan as.numeric, as factor, dan lainnya
+```{r}
+as.character(df_a$X1)
+```
+Jangan Lupa jika ingin kolom pada data frame tersebut berubah tipenya, masukkan kembali hasil perubahan tipenya ke data framenya.
+```{r}
+df_a$X1=as.character(df_a$X1)
+df_a
+```
+
+Untuk menghapus sebuah kolom dari data frame, masukkan NULL kedalam kolom yang ingin kita hapus.
+Sebagai contoh ingin menghapus kolom X2, maka
+```{r}
+df_a$X2 <- NULL
+df_a
+```
+
+#Slicing 
+
+Slicing adalah proses mengambil sebagian anggota dari sebuah data, slicing yang dasar pada R menggunakan operator [ ].
+Berikut contoh slicing pada vektor
+```{r}
+var_2 <- -2:7 #membangun vektor dari -2 hingga 7
+var_2
+print(var_2[5]) #Mengambil element urutan ke 5 pada vektor var_2, 
+
+#counting di R dimulai dari indeks 1, BUKAN 0
+print(var_2[1:3]) #Mengambil elemen urutan pertama hingga ketiga dari vektor var_2
+print(var_2[c(1,3,7)]) #Mengambil elemen urutan ke 1, 3 dan 7 dari var_2
+print(var_2[c(-9,-10,-2)]) # Membuang elemen urutan ke 9, 10 dan 2
+```
+
+Untuk Operasi Slicing pada Data Frame, kita dapat memandang satu kolom sebagai sebuah vektor.
+```{r}
+df_a$X1[3] #melihat element urutan ke -3 pada variabel X1 dari data frame df_a
+```
+Untuk membuang satu baris tertentu dalam data frame, gunakan
+```{r}
+df_a=df_a[-c(2,4),] #Membuang baris urutan ke 2 dan 4
+df_a
+```
+
+
+#Packages
+
+Package adalah kumpulan fungsi atau data yang terkompilasi dalam 1 file.
+Umumnya package digunakan untuk mempermudah 
+kita dalam melakukan beberapa pekerjaan.
+Beberapa package yang terkenal : 
+- GGplot (Untuk melakukan visualisasi)
+- tidyr (untuk mempermudah pengolahan dataframe)
+- readxl (untuk membaca data excel pada R)
+
+##Instalasi Packages
+Terdapat 2 cara untuk melakukan instalasi packages di R. 
+
+1. Melalui fungsi install.packages()
+```{r,eval=F}
+install.packages("readxl") #Untuk install packages readxl, cukup satu kali dijalankan
+```
+
+2. Melalui tab Packages di RStudio
+Packages > Install > Cari Nama Package
+
+##Penggunaan Packages
+Untuk menggunakan packages, kita dapat 
+1.Menggunakan fungsi library()
+```{r}
+library(tidyr)
+```
+Fungsi library akan mengimport seluruh file dan fungsi yang ada di dalam packages tersebut.
+
+2.Atau menggunakan require, yang bermakna sama saja seperti library
+
+#Input file
+
+R dapat menerima data dalam berbagai format (CSV,Excel,JSON, hingga terhubung ke SQL)
+```{r}
+data = read.csv("body_measurement.csv",sep=",") 
+#Untuk file csv, sep(separator) adalah tanda yang digunakan untuk memisahkan tiap cell dalam data
+str(data) #mengetahui tipe data
+summary(data) #mengambil sari numerik
+```

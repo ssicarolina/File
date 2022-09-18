@@ -1,0 +1,256 @@
+---
+title: "Regresi"
+author: "Randhy Pratama, Sebastian Adrian Halim, Celline Vercelli, Riwie Siregar"
+date: "1/10/2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+#REGRESI LINIER SEDERHANA
+#Menyiapkan Data
+
+```{r}
+library(readxl)
+data1=read_excel("D:/Kuliah/Mat/Semester 5/Analisis Variansi dan Regresi/11.5.xlsx",sheet="11.5")
+data1
+```
+
+#Melihat Perilaku Data
+
+```{r, warnings=FALSE}
+library(ggplot2)
+ggplot(data1,aes(x=Temp,y=Con_Sug)) + geom_point() #scatter plot variabel temp terhadap con_sug
+```
+
+
+#Melakukan Regresi Linier Sederhana
+
+```{r}
+model=lm(Con_Sug)~Temp,data1) #digunakan lm function
+summary(model)
+```
+karena p-value < taraf signifikansi, maka parameter tersebut signifikan.
+
+#Std Error & Residual Standard Error (Standard Deviation)
+```{r}
+#Residual Standard error (Like Standard Deviation)
+k=length(model$coefficients)-1 #Subtract one to ignore intercept
+SSE=sum(model$residuals**2)
+n=length(model$residuals)
+sqrt(SSE/(n-(1+k))) #Residual Standard Error = Akar(s^2) = Standard Deviation
+
+
+#Std Error Beta_0
+sqrt({SSE/(n-(1+k))}*{(1/n)+(mean(data1$Temp)**2)/(sum((data1$Temp-mean(data1$Temp))**2))})
+#Std Error Beta_1 (s/sqrt(Sum of Squared))
+sqrt(SSE/(n-(1+k)))/sqrt(sum((data1$Temp-mean(data1$Temp))**2))
+
+#P-Value
+2 * pt(6.936, 9, lower.tail = FALSE)
+2 * pt(2.999, 9, lower.tail = FALSE)
+
+```
+#Multiple R-Squared
+```{r}
+#Multiple R-Squared (Coefficient of Determination)
+SSyy=sum((data1$Con_Sug-mean(data1$Con_Sug))**2)
+SSE=sum(model$residuals**2)
+(SSyy-SSE)/SSyy
+#Alternatively
+1-SSE/SSyy #Multiple R-Squared = Koefisien Deterministik = R^2
+```
+```{r}
+#Adjusted R-Squared (Lebih baik digunakan jika prediktor banyak)
+n=length(data1$Con_Sug)
+k=length(model$coefficients)-1 #Subtract one to ignore intercept
+SSE=sum(model$residuals**2)
+SSyy=sum((data1$Con_Sug-mean(data1$Con_Sug))**2)
+1-(SSE/SSyy)*(n-1)/(n-(k+1))
+```
+```{r}
+#F-Statistic
+#Ho: All coefficients are zero
+#Ha: At least one coefficient is nonzero
+#Compare test statistic to F Distribution table
+n=length(data1$Con_Sug)
+SSE=sum(model$residuals**2)
+SSyy=sum((data1$Con_Sug-mean(data1$Con_Sug))**2)
+k=length(model$coefficients)-1
+FStat=((SSyy-SSE)/k) / (SSE/(n-(k+1)))
+
+FStat
+pf(FStat,1,9,lower.tail=F)
+```
+#Plot Garis Hasil Regresi dengan Data Asli
+
+```{r}
+library(ggplot2)
+ggplot(data1,aes(x=Temp,y=Con_Sug)) + 
+  geom_point() + 
+  geom_smooth(method="lm",
+              fill="cadetblue3",
+              formula=y~x,level=0.95)
+#Garis Biru menandakan Persamaan Garis Regresi
+#Daerah Biru Muda menandakan daerah dibawah selang kepercayaan yang dipilih, yaitu 0.95, dari rataan regresinya
+
+```
+
+#Membangun beberapa selang kepercayaan 
+Dipilih SK 95% sebagai ilustrasi
+
+SK Koefisien
+#Bisa didefinisikan juga untuk masing2 koefisien, dengan sintaks 
+#confint(model, "(Intercept)',level=0.95) u/ Beta0
+#confint(model, "Arm_Str',level=0.95) u/ Beta1
+```{r}
+confint(model, level=0.95)
+```
+
+SK Mean (Untuk Data Asli)
+Nilai ini yang diplot warna biru muda di gambar garis regresi
+```{r}
+MI=data.frame(predict(model, 
+                      newdata = data1, 
+                      interval = 'confidence',
+                      level=0.95))
+MI
+```
+
+SK Prediksi (Untuk Data Asli)
+```{r}
+PI=data.frame(predict(model, 
+                      newdata = data1, 
+                      interval = 'prediction',
+                      level=0.95))
+PI
+```
+
+#Menampilkan Residual dan Hasil Fit
+Berikut data frame jika dilihat data asli yang dibandingkan dengan fitted value/prediksi, maka dapat diperoleh residuals nya.
+```{r}
+CPR=data.frame(ConvertedSugar=data1$Con_Sug,
+           Prediction=PI$fit,
+           Residuals=resid(model))
+CPR
+```
+
+Akan di cek perilaku residual acak atau tidak.
+
+Saat melakukan plot residual dan ditemukan ada indikasi variansi tidak konstan, hal ini mungkin terjadi karena masih ada pola sistematis yang masih belum tertangkap oleh Model Regresi Linier Sederhana, sehingga residual di plot terhadap fitted value akan tidak acak/masih ada pola.
+
+Jika acak, berarti semua pola di dalam data sudah ditangkap oleh model Regresi Linier Sederhana tersebut. 
+Walaupun plot residualnya sudah acak, dan semua residual ini berada di sekitar nilai 0, tetap harus di cek apakah residual berdistribusi normal atau tidak. 
+
+Pengujian distribusi ini dapat melalui uji Anderson-Darling atau Kolgomorov Smirnov.
+
+
+```{r}
+ggplot(CPR,aes(x=data1$Temp,y=Residuals)) + 
+  geom_point() +
+  geom_hline(yintercept = 0)
+```
+
+```{r}
+qqnorm(resid(model),ylab="Residuals")
+qqline(resid(model),col="red")
+```
+#Anderson-Darling Test
+
+```{r}
+library(nortest)
+DiagCheck=ad.test(resid(model))
+DiagCheck
+```
+Perhatikan bahwa nilai p-value cukup besar, yaitu jika tingkat signifikansi menolak H0 0.05, maka p-value > 0.05.
+H0 tidak ditolak, residuals berdistribusi Normal.
+
+#Kolmogorov Smirnov
+```{r, warning=FALSE}
+library(dgof)
+DiagCheck2=ks.test(resid(model),"pnorm")
+DiagCheck2
+```
+Perhatikan bahwa nilai p-value cukup besar, yaitu jika tingkat signifikansi menolak H0 0.05, maka p-value > 0.05.
+H0 tidak ditolak, residuals berdistribusi Normal.
+
+```{r, warnings=FALSE}
+library(corrplot)
+cor(data1)
+corrplot(cor(data1),method = "number",type = "full") 
+#Korelasi cukup besar antara converted sugar dan temperaturnya dan berbanding lurus
+```
+
+#Predict
+```{r}
+datat1=read.csv('Pred1.csv')
+datat1
+data.frame(Hasil=predict(model,newdata = datat1))
+```
+
+
+#MULTIPLE LINEAR REGRESSION
+#Menyiapkan Data
+
+```{r}
+data2=read.csv("12.16.csv",sep=";")
+data2
+```
+
+#Melihat Perilaku Data
+```{r}
+ggplot(data2,aes(y=hFE,x=Emitter.RS)) + geom_point()
+ggplot(data2,aes(y=hFE,x=Base.RS)) + geom_point()
+ggplot(data2,aes(y=hFE,x=E.B.RS)) + geom_point()
+```
+
+#Melakukan Multiple Linear Regression
+
+```{r}
+model2=lm(hFE~Emitter.RS+Base.RS+E.B.RS,data2)
+summary(model2)
+```
+Analisis lanjutan dapat menggunaan sintaks yang sama dengan Regresi Linier Sederhana
+
+#Multiple Linear Regression dengan Data Kategorikal
+
+```{r}
+data3=read.csv("Data12_46.csv")
+data3$gender=as.factor(data3$gender)
+summary(data3)
+data3
+```
+
+#Re-Level, mengubah base level
+```{r}
+library(dplyr)
+data3 = data3 %>% mutate(gender = relevel(gender, ref = "M"))
+data3
+```
+
+```{r}
+model3=lm(profit~income+gender+family.members,data3)
+summary(model3)
+```
+Analisis Lanjutannya sama dengan Regresi Linier dan Multiple Linear Regression
+
+#Sequential Method
+Kita akan mengambil model Multiple Linier Regression untuk dikembangkan
+
+Forward Selection
+```{r}
+library(MASS)
+modelf=stepAIC(model2,direction="forward", trace=FALSE)
+summary(modelf)
+```
+
+Backward Elimination
+```{r}
+modelb=stepAIC(model2,direction="backward", trace=FALSE)
+summary(modelb)
+```
+
+Stepwise Regression
+```{r}
+modelstep=stepAIC(model2,direction="both", trace=FALSE)
+summary(modelstep)
+```
