@@ -1,6 +1,5 @@
 ---
 title: "ANOVA"
-author: "Randhy Pratama, Sebastian Adrian Halim, Celline Vercelli, Riwie Siregar"
 date: "1/10/2021"
 output: pdf_document
 ---
