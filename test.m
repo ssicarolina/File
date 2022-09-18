@@ -1,126 +1,104 @@
-clear;clc
-format long
+clc
+clear all
+close all
+close all hidden
 
 
 
-%% ROMBERG
-% f = @(x) exp(x)
-% a = 0; b = 4;
-% eps = 10^-20;
-% maks_iter = 2;
-% integral = romberg(f,a,b,eps,maks_iter);
 
-% %% LGWT
-% N = 3;
-% integral = romberg(f,a,b,eps,maks_iter)
-% [x,c]=lgwt(6,1,2)
-% f =  x.*log(x);
-% value = sum(c.*f)
 
-% %% GAUSS- LEGREGE
-% integral = 3.135506183362450;
-% f = @(x) (4.*x - x.^2).^0.5;
-% a = 0;
-% b = 2;
-% n = 3;
-% integral2 = glegendre(f,a,b,n);
-% x1 = abs(integral - pi)
-% x2 = abs(integral2 - pi)
-% % 
-% f = @(x) exp(x);
-% a = -1;
-% b = 1;
-% n = 2;
-% integral = glegendre(f,a,b,n)
+%% EULER
+% % contoh euler di ppt 
+% [t,y,hasil] = euler('feuler',[0 3],1,0.125);
+% [t2,y2,hasil2] = euler('feuler2',[0 0.4],1,0.1);
+% [t3,y3,hasil3] = euler('feuler2',[0 0.4],1,0.05);
+% plot(t,y)
+% grid on
+% xlabel('Waktu (detik)')
+% ylabel('Nilai Y')
+% hold on
+% plot(t,3*exp(-t/2)+t-2,'o'); % grafik solusi eksak y(t) = 3*exp(-t/2)+t-2
+% hold off;
+
+%% HEUN
+% [t,y,hasil] = heun('feuler',[0 3],1,1);
+% [t,y,hasil] = heun('feuler',[0 3],1,0.5);
+% [t,y,hasil] = heun('feuler',[0 3],1,0.25);
 % 
-% %% RIEMAN 
-% integral = riemann_kanan(f,a,b,n)
-% integral = riemann_kiri(f,a,b,n)
-
-
-% %% SIMPSON
-% f = @(x) exp(x);
-% a = 0;
-% b = 1;
-% n = 4;
-% [integral,X,S] = simpson_1per3(f,a,b,n);
-
-% %% SIMPSON KOMPOSIT
-% f = @(x) exp(x);
-% a = 0;
-% b = 1;
-% M = 4; % jumlah subinterval
-% [s,X,S]=simpson_komposit(f,a,b,M);
-
-%% Trapesium Rekursif
-n = 4;
-a = 0;
-b = 1;
-f = @(x) 1/((1+x^4)^0.5);
-M = 4;
-T=trapesium_rekursif(f,a,b,n)
-s=trapesium_komposit(f,a,b,M)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% format long
-% syms x;
-% %masukkan fungsi f(x) yang akan diintegralkan 
-% %misalkan : 
-% %f = @(x) exp(x)
-% f = @(x) exp(x)
-% eps = input('Masukkan batas galat : ');
-% maks_iter = input('Masukkan batas maksimum iterasi : ');
-% R = zeros( maks_iter + 1, maks_iter + 1 );
-% a = input('Masukkan a (batas integrasi bawah) : ');
-% b = input('Masukkan b (batas integrasi atas): ');
-% h = b - a;
-% R(1,1) = (f(a)+f(b))/2*h;
-% 
-% for i = 1:maks_iter
-%     h = h/2;
-%     R( i + 1, 1 ) = 0.5*(f(a) + 2*sum( f( (a + h):h:(b - h) ) ) + f(b))*h;
-% 
-%     for j = 1:i
-%         R(i + 1, j + 1) = (4^j*R(i + 1, j) - R(i, j))/(4^j - 1);
-%     end
-% 
-%     if abs( R(i + 1, i + 1) - R(i, i) ) < eps
-%        break;
-%     elseif i == maks_iter + 1
-%        error( 'Romberg integration tidak konvergen' );
-%     end
+% %% TAYLOR
+% % contoh soal di ppt 
+% syms y t
+% % mencari deret taylor sampai orde 4
+% f = (t-y)/2;
+% df(1) = f;
+% for i = 1:3
+%     df(i+1) = diff(df(i),t) + (diff(df(i),y)*f);
 % end
-% 
-% R( i + 1, i + 1 )
-% %hasil aproksimasi dengan metode romberg
+% y1 =@(t,y) (t-y)/2;
+% y2 =@(t,y) (2-t+y)/4;
+% y3 =@(t,y) (-2+t-y)/8;
+% y4 =@(t,y) (2-t+y)/16;
+% % inisialisasi 
+% a = 0;
+% b = 3;
+% ya = 1;
+% T4=taylor(y1,y2,y3,y4,a,b,ya,1) 
+% T4=taylor(y1,y2,y3,y4,a,b,ya,0.5)
+% T4=taylor(y1,y2,y3,y4,a,b,ya,0.25)
+% T4=taylor(y1,y2,y3,y4,a,b,ya,0.125)
+
+%% RUNGE-KUTTA
+% [t,y] = runge_kutta('feuler',[0 3],1,1,1);
+% [t,y] = runge_kutta('feuler',[0 3],1,0.5,1);
+% [t,y] = runge_kutta('feuler',[0 3],1,0.25,1);
+% [t,y] = runge_kutta('feuler',[0 3],1,0.125,1);
+% % plot(t,y)
+% grid on
+% xlabel("Waktu (detik)")
+% ylabel(" Nilai Y")
+
+% syms t
+% h = 0.1; %Time Step
+% a = 0; %Starting t
+% b = 2; %Ending t
+% n = 20; %Number of Iterations
+% y = -0.25; %Initial Condition
+% yvals = -0.25;
+% y11=sin(4*t);
+% y21=4*cos(4*t);
+% y31= -16*sin(4*t);
+% y41=-64*cos(4*t);
+% step = ((b-a)/h) + 1
+% for i = 2:step
+%     y1 = y + y11*h + ((y21/factorial(2))*h.^2) +((y31/factorial(3))*h.^3)+(y41/factorial(4)*h.^4);
+%     yvals=[yvals, y1];
+%     y=y1;
+% end
+% yvals=[yvals]'
+
+% MASALAH NILAI BATAS - BEDA HINGGA
+p = @(x) (-2*x);
+q = @(x) (x^2);
+r = @(x) (sin(x)); 
+a = 1; b =7; alpha = 5; beta = 3; h=6/7;      % h = (b-a)/(n+1);   h=0.2
+[X] = MNB_lin(p,q,r,a,b,alpha,beta,h)
+
+% x=1.2:.2:2.8;
+% h=.2;n=length(x);
+% b=-(2+h*h*(1-x/5));
+% c=ones(1,n);a=c;
+% r=h*h*x;
+% r(1)=r(1)-2;r(n)=r(n)+1;
+% beta=c;gam=c;y=c;
+% beta(1)=b(1);gam(1)=r(1)/beta(1);
+% for i=2:n
+%     beta(i)=b(i)-a(i)*c(i-1)/beta(i-1);
+%     gam(i)=(r(i)-a(i)*gam(i-1))/beta(i);
+% end
+% y(n)=gam(n);
+% for j=1:n-1
+%     y(n-j)=gam(n-j)-c(n-j)*y(n-j+1)/beta(n-j);
+% end
+% disp('y =');disp(y')
+
+
