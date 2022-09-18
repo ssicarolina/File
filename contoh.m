@@ -1,43 +1,66 @@
 clear
 clc
+
+% %% Newton
+% x = [1,2,3,5,6];
+% y = [7,4,5.5,40,82];
+% newton_interpolation(x,y,5)
 % 
+% %% Lagrange
+% x = [1, 6, 4];
+% y = [0, 1.791759469, 1.386294361];
+% lagrange_interpolation(x,y,2)
 
-format short
-%% ELIMINASI GAUSS
-% a = [2,5,-4,-5;-2,1,-7,5;8,4,16,-4;1,1.5,3,4.5];
-% b = [-2,3,24,16]';
-% C = [a,b];                
-% akar = eliminasi_gauss(a,b)
-% disp("------------------------------------------------------------------------------------------------")
+% %% Lagrange Coef
+% x = [-2, 0, 2];
+% f = @(x) x^2 + x +2;
+% for i = 1:length(x) 
+%     y(i) = f(x(i));
+% end
+% c = lagrange_coef(x,y)
+% t = 10;
+% lagrange_eval(t,x,c)
+% 
+%% Newton Coef
+x = [1, 2, 2.5];
+f = @(x) x+(2/x);
+for i = 1:length(x) 
+    y(i) = f(x(i))
+end
+k= 2;
+[p]=lagrange_coef(x,y,k)
+% t = 10;
+% newton_eval(t,x,a)
+% lagrange_full(t,x,a)
+% 
+% X = [2;3;4];
+% Y = [-1;16;51];
+% p0 = 1.5;
+% k = 2; % orde polinom newtom yang diinginkan k<length(x)
+% [d,c,a,p] = newton_coef(X,Y,k,p0)
+% % [p]=lagrange_coef(x,y,k)
 
-% % GAUSS PENUMPUAN PARSIAL
-% C = [1,2,1,4,13;2,0,4,3,28;4,2,2,1,20;-3,1,3,2,6];
-% akar = gauss_penumpuan_parsial(C)
-% disp("------------------------------------------------------------------------------------------------")
+% pp=lagrange_func(X,Y,k)
 
-%% GAUSS - JORDAN
-% X = [4,-5,-2.5,-0.5;-2,2,-3,1;-2,-4.5,2.5,-5;4.5,1,-3.5,3];
-% n = length(X);
-% X_inv = modif_gauss_jordan(n,X)
+% 
+% %%
+% x = [1, 6, 4];
+% y = [0, 1.791759469, 1.386294361];
+% sum = 0;
+% a = 2;
+% for i = 1:length(x)
+%     u = 1;
+%     l = 1;
+%     for j = 1:length(x)
+%         if j ~= i
+%             u = u * (a - x(j));
+%             l = l * (x(i) - x(j));
+%         end
+%     end
+%     sum= sum + u / l * y(i);
+% end
+% disp(sum);
 
 
-%% JACOBI
-% a = [8,3,-2,1,2;4,12,4,3,-7;2,-2,9,3,10;1,2,4,8,-5]; % [b]x = [c], a = [b c] 
-% x = [2;2;6;3];  % tebakan awal  
-% akar = jacobi (a,x)
 
-
-%% GAUSS - SEIDEL
-% a = [8,3,-2,1,2;4,12,4,3,-7;2,-2,9,3,10;1,2,4,8,-5]; % [b]x = [c], a = [b c] 
-% x = [2;2;6;3];  % tebakan awal  
-% akar = gauss_seidel(a,x)
-
-%% CROUT
-A = [1,1,0;1,3,0;1,1,2];
-B = [3;7;5]
-[X,L,U] = doolitle(A,B);
-a = [L B]
-y = penyulihan_maju(a)
-aa = [U y' ]
-x = penyulihan_mundur(aa)
 
